@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Extension Icons</title>
+</head>
+<body>
+    <canvas id="canvas" width="128" height="128"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        function createIcon(size) {
+            canvas.width = size;
+            canvas.height = size;
+            
+            // Background
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillRect(0, 0, size, size);
+            
+            // Bee body (simplified)
+            ctx.fillStyle = '#1f2937';
+            ctx.fillRect(size * 0.3, size * 0.2, size * 0.4, size * 0.6);
+            
+            // Stripes
+            ctx.fillStyle = '#fbbf24';
+            ctx.fillRect(size * 0.35, size * 0.3, size * 0.3, size * 0.1);
+            ctx.fillRect(size * 0.35, size * 0.45, size * 0.3, size * 0.1);
+            ctx.fillRect(size * 0.35, size * 0.6, size * 0.3, size * 0.1);
+            
+            // Eyes
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(size * 0.4, size * 0.3, size * 0.05, size * 0.05);
+            ctx.fillRect(size * 0.55, size * 0.3, size * 0.05, size * 0.05);
+            
+            return canvas.toDataURL('image/png');
+        }
+        
+        // Create icons for different sizes
+        const sizes = [16, 32, 48, 128];
+        sizes.forEach(size => {
+            const dataUrl = createIcon(size);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = dataUrl;
+            link.click();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Save to BeeKeeper</title>
+  <style>
+    body {
+      width: 400px;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      background: #f8fafc;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .header h1 {
+      margin: 0;
+      font-size: 18px;
+      color: #1f2937;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 4px;
+      font-weight: 500;
+      color: #374151;
+      font-size: 14px;
+    }
+    
+    input, textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 60px;
+    }
+    
+    .preview {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    
+    .preview-image {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 4px;
+      margin-bottom: 8px;
+    }
+    
+    .preview-title {
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #1f2937;
+    }
+    
+    .preview-description {
+      color: #6b7280;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    
+    .preview-domain {
+      color: #9ca3af;
+      font-size: 12px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 8px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    
+    .btn-primary {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #2563eb;
+    }
+    
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+    
+    .btn-primary:disabled {
+      background: #9ca3af;
+      cursor: not-allowed;
+    }
+    
+    .status {
+      margin-top: 12px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      text-align: center;
+    }
+    
+    .status.success {
+      background: #dcfce7;
+      color: #166534;
+    }
+    
+    .status.error {
+      background: #fef2f2;
+      color: #dc2626;
+    }
+    
+    .status.loading {
+      background: #fef3c7;
+      color: #d97706;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🐝 Save to BeeKeeper</h1>
+  </div>
+  
+  <div id="preview" class="preview" style="display: none;">
+    <img id="preview-image" class="preview-image" alt="Preview">
+    <div id="preview-title" class="preview-title"></div>
+    <div id="preview-description" class="preview-description"></div>
+    <div id="preview-domain" class="preview-domain"></div>
+  </div>
+  
+  <form id="save-form">
+    <div class="form-group">
+      <label for="title">Title</label>
+      <input type="text" id="title" name="title" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" placeholder="Optional description..."></textarea>
+    </div>
+    
+    <div class="form-group">
+      <label for="tags">Tags</label>
+      <input type="text" id="tags" name="tags" placeholder="tag1, tag2, tag3">
+    </div>
+    
+    <div class="button-group">
+      <button type="button" id="cancel-btn" class="btn-secondary">Cancel</button>
+      <button type="submit" id="save-btn" class="btn-primary">Save</button>
+    </div>
+  </form>
+  
+  <div id="status" class="status" style="display: none;"></div>
+  
+  <script src="index.js" type="module"></script>
+</body>
+</html>

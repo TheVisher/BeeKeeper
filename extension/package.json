@@ -1,0 +1,20 @@
+{
+  "name": "beekeeper-extension",
+  "version": "1.0.0",
+  "description": "Browser extension for BeeKeeper bookmarking app",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build && node build.js",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.254",
+    "typescript": "^5.2.2",
+    "vite": "^5.0.0",
+    "vite-plugin-web-extension": "^4.0.0"
+  },
+  "dependencies": {
+    "webextension-polyfill": "^0.10.0"
+  }
+}

@@ -9,10 +9,12 @@ import { cn } from '@/lib/utils';
 import Image from 'next/image';
 import { ExternalLink, Copy, Edit, Pin, Link as LinkIcon, Type, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { useToast } from '@/components/ui/toast';
+import { updateUserCard, deleteUserCard } from '@/lib/local-storage';
 
 
 interface FlipCardProps {
     item: CardItem;
+    userId?: string;
     onPin?: (id: string) => void;
     onEdit?: (id: string) => void;
     onUpdate?: (updatedCard: CardItem) => void;
@@ -30,7 +32,7 @@ const cardContentVariants = {
 };
 
 // Fix: Changed component to a const typed with React.FC to ensure it's correctly recognized as a React component, resolving the `key` prop error.
-export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdate, onDelete }) => {
+export const FlipCard: React.FC<FlipCardProps> = ({ item, userId, onPin, onEdit, onUpdate, onDelete }) => {
     const [isFlipped, setIsFlipped] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(item.title);
@@ -54,8 +56,8 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
         }
     };
 
-    const handlePin = async () => {
-        if (!onUpdate || !isAuthenticated) {
+    const handlePin = () => {
+        if (!onUpdate || !isAuthenticated || !userId) {
             addToast({
                 type: 'warning',
                 title: 'Sign in required',
@@ -64,19 +66,13 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
             return;
         }
         
-        setIsLoading(true);
         try {
-            const response = await fetch(`/api/cards/${item.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ pinned: !item.pinned })
-            });
-
-            if (!response.ok) {
+            const updatedCard = updateUserCard(userId, item.id, { pinned: !item.pinned });
+            
+            if (!updatedCard) {
                 throw new Error('Failed to update pin status');
             }
 
-            const updatedCard = await response.json();
             onUpdate(updatedCard);
             addToast({
                 type: 'success',
@@ -87,10 +83,8 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
             addToast({
                 type: 'error',
                 title: 'Error',
-                description: 'Failed to update pin status. Please sign in and try again.'
+                description: 'Failed to update pin status. Please try again.'
             });
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -109,22 +103,12 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
         setEditTags(item.tags?.join(', ') || '');
     };
 
-    const handleSaveEdit = async () => {
-        if (!isAuthenticated) {
-            // In demo mode, just update the local state for demonstration
-            const tags = editTags.split(',').map(tag => tag.trim()).filter(Boolean);
-            const demoUpdatedCard = {
-                ...item,
-                title: editTitle,
-                description: editDescription,
-                tags: tags
-            };
-            onUpdate?.(demoUpdatedCard);
-            setIsEditing(false);
+    const handleSaveEdit = () => {
+        if (!isAuthenticated || !userId) {
             addToast({
-                type: 'info',
-                title: 'Demo Edit Complete',
-                description: 'Changes shown locally. Sign in to save permanently.'
+                type: 'warning',
+                title: 'Sign in required',
+                description: 'Please sign in to edit cards.'
             });
             return;
         }
@@ -138,25 +122,19 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
             return;
         }
 
-        setIsLoading(true);
         try {
             const tags = editTags.split(',').map(tag => tag.trim()).filter(Boolean);
             
-            const response = await fetch(`/api/cards/${item.id}`, {
-                method: 'PATCH',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    title: editTitle,
-                    description: editDescription,
-                    tags: tags
-                })
+            const updatedCard = updateUserCard(userId, item.id, {
+                title: editTitle,
+                description: editDescription,
+                tags: tags
             });
 
-            if (!response.ok) {
+            if (!updatedCard) {
                 throw new Error('Failed to update card');
             }
 
-            const updatedCard = await response.json();
             onUpdate(updatedCard);
             setIsEditing(false);
             addToast({
@@ -168,10 +146,8 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
             addToast({
                 type: 'error',
                 title: 'Error',
-                description: 'Failed to update card. Please sign in and try again.'
+                description: 'Failed to update card. Please try again.'
             });
-        } finally {
-            setIsLoading(false);
         }
     };
 
@@ -182,8 +158,8 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
         setEditTags(item.tags?.join(', ') || '');
     };
 
-    const handleDelete = async () => {
-        if (!onDelete || !isAuthenticated) {
+    const handleDelete = () => {
+        if (!onDelete || !isAuthenticated || !userId) {
             addToast({
                 type: 'warning',
                 title: 'Sign in required',
@@ -196,13 +172,10 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
             return;
         }
 
-        setIsLoading(true);
         try {
-            const response = await fetch(`/api/cards/${item.id}`, {
-                method: 'DELETE'
-            });
+            const success = deleteUserCard(userId, item.id);
 
-            if (!response.ok) {
+            if (!success) {
                 throw new Error('Failed to delete card');
             }
 
@@ -216,10 +189,8 @@ export const FlipCard: React.FC<FlipCardProps> = ({ item, onPin, onEdit, onUpdat
             addToast({
                 type: 'error',
                 title: 'Error',
-                description: 'Failed to delete card. Please sign in and try again.'
+                description: 'Failed to delete card. Please try again.'
             });
-        } finally {
-            setIsLoading(false);
         }
     };
     

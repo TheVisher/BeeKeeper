@@ -1,19 +1,27 @@
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
 
 export default defineConfig({
   build: {
+    outDir: 'dist',
     rollupOptions: {
       input: {
-        background: 'src/background/index.ts',
-        content: 'src/content/index.ts',
-        popup: 'src/popup/index.ts'
+        background: 'background/index.ts',
+        popup: 'popup/index.ts',
+        content: 'content/index.ts'
       },
       output: {
         entryFileNames: '[name]/index.js',
         chunkFileNames: '[name]/[name].js',
-        assetFileNames: '[name]/[name].[ext]'
-      }
+        assetFileNames: '[name]/[name].[ext]',
+      },
     },
-    outDir: 'dist'
-  }
-})
+    target: 'esnext',
+    minify: false,
+  },
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, './'),
+    },
+  },
+});

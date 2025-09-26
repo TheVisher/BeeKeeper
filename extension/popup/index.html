@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Save to BeeKeeper</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div id="root">
+    <h2>🐝 Save to BeeKeeper</h2>
+    <div id="msg" class="err"></div>
+    <form id="form">
+      <input type="text" id="title" placeholder="Title" required />
+      <textarea id="description" placeholder="Description"></textarea>
+      <input type="text" id="tags" placeholder="Tags (comma-separated)" />
+      <button type="submit" id="save" disabled>Save</button>
+    </form>
+  </div>
+  <script src="index.js" type="module"></script>
+</body>
+</html>

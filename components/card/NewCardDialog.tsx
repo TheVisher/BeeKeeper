@@ -6,19 +6,22 @@ import { Input } from '@/components/ui/input'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { Plus, Loader2 } from 'lucide-react'
 import { CardItem } from '@/lib/types'
+import { addUserCard } from '@/lib/local-storage'
+import { useSession } from 'next-auth/react'
 
 interface NewCardDialogProps {
   onCardAdded: (card: CardItem) => void
 }
 
 export function NewCardDialog({ onCardAdded }: NewCardDialogProps) {
+  const { data: session } = useSession()
   const [isOpen, setIsOpen] = useState(false)
   const [url, setUrl] = useState('')
   const [tags, setTags] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     
     if (!url.trim()) {
@@ -26,27 +29,30 @@ export function NewCardDialog({ onCardAdded }: NewCardDialogProps) {
       return
     }
 
+    if (!session?.user?.id) {
+      setError('Please sign in to create cards')
+      return
+    }
+
     setIsLoading(true)
     setError('')
 
     try {
-      const response = await fetch('/api/clip', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ 
-          url: url.trim(),
-          tags: tags.trim() ? tags.split(',').map(tag => tag.trim()).filter(Boolean) : undefined
-        }),
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Failed to create card')
+      // Create a simple card directly in localStorage
+      const newCard: CardItem = {
+        id: `local_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        user_id: session.user.id,
+        type: 'link',
+        title: new URL(url.trim()).hostname || 'New Card',
+        description: `Card created from ${url.trim()}`,
+        url: url.trim(),
+        domain: new URL(url.trim()).hostname,
+        tags: tags.trim() ? tags.split(',').map(tag => tag.trim()).filter(Boolean) : [],
+        created_at: new Date().toISOString(),
+        pinned: false
       }
 
-      const newCard = await response.json()
+      addUserCard(session.user.id, newCard)
       onCardAdded(newCard)
       
       // Reset form and close dialog

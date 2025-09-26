@@ -13,6 +13,8 @@ import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 import { NewCardDialog } from './NewCardDialog';
 import { CardSkeleton } from '@/components/ui/skeleton';
+import { getUserCards } from '@/lib/local-storage';
+import { useEffect } from 'react';
 
 type FilterType = 'all' | CardItem['type'];
 
@@ -30,6 +32,52 @@ export function CardGrid({ items: initialItems }: { items: CardItem[] }) {
   const [activeFilter, setActiveFilter] = useState<FilterType>('all');
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Load cards from localStorage when component mounts or session changes
+  useEffect(() => {
+    if (session?.user?.id) {
+      try {
+        const userCards = getUserCards(session.user.id);
+        setItems(userCards);
+      } catch (error) {
+        console.error('Error loading cards from localStorage:', error);
+      }
+    }
+  }, [session?.user?.id]);
+
+  // Listen for new cards added by the browser extension
+  useEffect(() => {
+    const reloadCards = () => {
+      if (session?.user?.id) {
+        try {
+          const userCards = getUserCards(session.user.id);
+          setItems(userCards);
+          console.log('Cards reloaded from localStorage');
+        } catch (error) {
+          console.error('Error reloading cards from localStorage:', error);
+        }
+      }
+    };
+
+    const handleStorageChange = () => {
+      // Reload cards from localStorage when storage changes
+      reloadCards();
+    };
+
+    const handleExtensionCardAdded = () => {
+      // Reload cards when extension adds a new card
+      reloadCards();
+    };
+
+    // Listen for both storage events and custom events
+    window.addEventListener('beekeeper-card-added', handleExtensionCardAdded);
+    window.addEventListener('storage', handleStorageChange);
+    
+    return () => {
+      window.removeEventListener('beekeeper-card-added', handleExtensionCardAdded);
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [session?.user?.id]);
 
   const filteredItems = useMemo(() => {
     return items
@@ -55,21 +103,6 @@ export function CardGrid({ items: initialItems }: { items: CardItem[] }) {
           }));
   }, [items, searchTerm, activeFilter]);
   
-  const handleAddCard = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const newCard: CardItem = {
-      id: String(Date.now()),
-      type: formData.get('type') as CardItem['type'] || 'note',
-      title: formData.get('title') as string,
-      description: formData.get('description') as string,
-      url: formData.get('url') as string,
-      tags: (formData.get('tags') as string || '').split(',').map(tag => tag.trim()).filter(Boolean),
-      created_at: new Date().toISOString(),
-    };
-    setItems(prev => [newCard, ...prev]);
-    setDialogOpen(false);
-  };
 
   const handleNewCardAdded = (newCard: CardItem) => {
     setItems(prev => [newCard, ...prev]);
@@ -151,6 +184,7 @@ export function CardGrid({ items: initialItems }: { items: CardItem[] }) {
             >
               <FlipCard 
                 item={item} 
+                userId={session?.user?.id}
                 onUpdate={session ? handleCardUpdate : undefined}
                 onDelete={session ? handleCardDelete : undefined}
               />

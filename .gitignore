@@ -1,14 +1,12 @@
 # Dependencies
 node_modules/
-pnpm-lock.yaml
+.pnp
+.pnp.js
 
-# Next.js build output
+# Production builds
 .next/
 out/
-
-# Production build
 dist/
-build/
 
 # Environment variables
 .env
@@ -62,31 +60,35 @@ jspm_packages/
 .cache
 .parcel-cache
 
-# Stores VSCode versions used for testing VSCode extensions
-.vscode-test
+# Next.js build output
+.next
 
-# yarn v2
-.yarn/cache
-.yarn/unplugged
-.yarn/build-state.yml
-.yarn/install-state.gz
-.pnp.*
+# Nuxt.js build / generate output
+.nuxt
+dist
 
-# IDE files
-.vscode/
-.idea/
-*.swp
-*.swo
+# Gatsby files
+.cache/
+public
 
-# OS generated files
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
 .DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
 
-# Extension build files
+# Extension build output
 extension/dist/
-extension/node_modules/

@@ -1,5 +1,5 @@
 // Content script for BeeKeeper Clipper
-// Always scrapes page data and handles popup requests
+// Scrapes page data and responds on demand
 
 (() => {
   function scrape() {
@@ -13,17 +13,14 @@
         og('og:description') ||
         document
           .querySelector<HTMLMetaElement>('meta[name="description"]')
-          ?.content ||
-        '',
+          ?.content || '',
       image:
         og('og:image') ||
         document
           .querySelector<HTMLMetaElement>('meta[property="twitter:image"]')
-          ?.content ||
-        '',
+          ?.content || '',
       favicon:
-        document.querySelector<HTMLLinkElement>('link[rel~="icon"]')?.href ||
-        ''
+        document.querySelector<HTMLLinkElement>('link[rel~="icon"]')?.href || ''
     };
 
     console.log('[BK] Page data scraped:', pageData);
@@ -34,14 +31,11 @@
     });
   }
 
-  // Run once on load
+  // Send once automatically
   scrape();
 
-  // If BG asks for fresh data (after right-click)
-  chrome.runtime.onMessage.addListener((msg) => {
-    if (msg.type === 'BK_OPEN_POPUP') {
-      scrape();
-      chrome.runtime.sendMessage({ type: 'BK_SHOW_POPUP' });
-    }
+  // Listen for explicit requests
+  chrome.runtime.onMessage.addListener((m) => {
+    if (m.type === 'BK_REQUEST_PAGE_DATA') scrape();
   });
 })();

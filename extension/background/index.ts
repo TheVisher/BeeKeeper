@@ -1,18 +1,20 @@
 // Background script for BeeKeeper Clipper
 // Handles context menu and message routing
 
-chrome.runtime.onInstalled.addListener(createMenu);
-chrome.runtime.onStartup.addListener(createMenu); // ensure menu after reload
+const MENU_ID = 'bk-save';
 
-function createMenu() {
+function createContextMenu() {
   chrome.contextMenus.removeAll(() => {
     chrome.contextMenus.create({
-      id: 'bk-save',
+      id: MENU_ID,
       title: 'Save to BeeKeeper',
       contexts: ['page', 'link', 'image']
     });
   });
 }
+
+chrome.runtime.onInstalled.addListener(createContextMenu);
+chrome.runtime.onStartup.addListener(createContextMenu);
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (!tab?.id) return;
